@@ -162,6 +162,25 @@ hpsudoku_read(size_t size, const char *ptr)
 		}
 	}
 
+	/* inside each row or column value may only appear once */
+	for (u = 0; u != size; u++) {
+		for (x = 0; x != size; x++) {
+			for (y = 0; y != size; y++) {
+				for (t = 0; t != size; t++) {
+					if (t == x)
+						continue;
+					/* add 2-SAT rule */
+					(new ELEM(1,
+					    hpsudoku_variable(size, x, y, u),
+					    hpsudoku_variable(size, t, y, u)))->insert_tail(&head.head);
+					(new ELEM(1,
+					    hpsudoku_variable(size, y, x, u),
+					    hpsudoku_variable(size, y, t, u)))->insert_tail(&head.head);
+				}
+			}
+		}
+	}
+
 	/* expand known values */
 	for (x = 0; x != size; x++) {
 		for (y = 0; y != size; y++) {
@@ -218,7 +237,7 @@ hpsudoku_read(size_t size, const char *ptr)
 	printf("\n");
 }
 
-int 
+int
 main(int argc, char **argv)
 {
 	char buffer[256];
